@@ -1,0 +1,39 @@
+name: Daily Feed Pipeline
+
+on:
+  schedule:
+    # 7am China Standard Time (CST = UTC+8) = 23:00 UTC previous day
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+env:
+  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+  DEEPSEEK_BASE_URL: https://api.deepseek.com
+  DEEPSEEK_MODEL: deepseek-chat
+
+jobs:
+  process-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run feed pipeline
+        working-directory: scripts
+        run: python pipeline.py
+
+      - name: Upload feed data as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: feed-data
+          path: src/data/feed.json
+          retention-days: 7

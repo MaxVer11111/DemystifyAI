@@ -1,0 +1,11 @@
+[
+  {
+    "id": "ainews",
+    "name": "AINews by smol.ai",
+    "site_url": "https://news.smol.ai",
+    "feed_url": "https://news.smol.ai/rss.xml",
+    "type": "rss",
+    "icon_url": null,
+    "enabled": true
+  }
+]
