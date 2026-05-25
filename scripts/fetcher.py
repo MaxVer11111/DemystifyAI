@@ -5,12 +5,21 @@ Handles fetching and parsing RSS feeds using feedparser.
 
 import feedparser
 import re
-from datetime import datetime
+import requests
+from requests.exceptions import RequestException
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
+USER_AGENT = "DemystifyAI/1.0 (feed fetcher; +https://demystifyai.com)"
 
-def fetch_feed(feed_url: str) -> Optional[list[dict]]:
-    parsed = feedparser.parse(feed_url)
+
+def fetch_feed(feed_url: str, days_threshold: Optional[int] = None) -> Optional[list[dict]]:
+    try:
+        resp = requests.get(feed_url, timeout=30, headers={"User-Agent": USER_AGENT})
+        resp.raise_for_status()
+        parsed = feedparser.parse(resp.text)
+    except RequestException:
+        return None
 
     if parsed.bozo and not parsed.entries:
         return None
@@ -33,6 +42,29 @@ def fetch_feed(feed_url: str) -> Optional[list[dict]]:
             "published_at": published,
             "raw_content": _clean_html(content),
         })
+
+    if days_threshold is not None:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days_threshold)
+        filtered = []
+        for a in articles:
+            if a["published_at"]:
+                try:
+                    pub = datetime.fromisoformat(a["published_at"])
+                    if pub.replace(tzinfo=pub.tzinfo or timezone.utc) >= cutoff:
+                        filtered.append(a)
+                except (ValueError, TypeError):
+                    filtered.append(a)
+        articles = filtered
+
+    def _parse_safe(pub_str: Optional[str]) -> datetime:
+        if not pub_str:
+            return datetime.min.replace(tzinfo=timezone.utc)
+        try:
+            return datetime.fromisoformat(pub_str).replace(tzinfo=timezone.utc)
+        except (ValueError, TypeError):
+            return datetime.min.replace(tzinfo=timezone.utc)
+
+    articles.sort(key=lambda a: _parse_safe(a["published_at"]), reverse=True)
 
     return articles
 

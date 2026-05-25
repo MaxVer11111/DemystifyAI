@@ -4,7 +4,178 @@
     "name": "AINews by smol.ai",
     "site_url": "https://news.smol.ai",
     "feed_url": "https://news.smol.ai/rss.xml",
-    "type": "rss",
+    "category": "AI & Tech",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "pgessays",
+    "name": "Paul Graham — Essays",
+    "site_url": "https://paulgraham.com",
+    "feed_url": "http://www.aaronsw.com/2002/feeds/pgessays.rss",
+    "category": "Ideas, Essays & Big Thinking",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "gwern",
+    "name": "Gwern",
+    "site_url": "https://gwern.net",
+    "feed_url": "https://gwern.substack.com/feed",
+    "category": "Ideas, Essays & Big Thinking",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "dynomight",
+    "name": "Dynomight",
+    "site_url": "https://dynomight.net",
+    "feed_url": "https://dynomight.net/feed.xml",
+    "category": "Ideas, Essays & Big Thinking",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "experimental-history",
+    "name": "Experimental History",
+    "site_url": "https://www.experimental-history.com",
+    "feed_url": "https://www.experimental-history.com/feed",
+    "category": "Ideas, Essays & Big Thinking",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "dwarkesh",
+    "name": "Dwarkesh Patel",
+    "site_url": "https://www.dwarkeshpatel.com",
+    "feed_url": "https://www.dwarkeshpatel.com/feed",
+    "category": "Ideas, Essays & Big Thinking",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "daringfireball",
+    "name": "Daring Fireball",
+    "site_url": "https://daringfireball.net",
+    "feed_url": "https://daringfireball.net/feeds/main",
+    "category": "Tech News You Actually Need to Know",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "krebsonsecurity",
+    "name": "Krebs on Security",
+    "site_url": "https://krebsonsecurity.com",
+    "feed_url": "https://krebsonsecurity.com/feed/",
+    "category": "Tech News You Actually Need to Know",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "pluralistic",
+    "name": "Pluralistic",
+    "site_url": "https://pluralistic.net",
+    "feed_url": "https://pluralistic.net/feed/",
+    "category": "Tech News You Actually Need to Know",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "wheresyoured",
+    "name": "Where's Your Ed At",
+    "site_url": "https://www.wheresyoured.at",
+    "feed_url": "https://www.wheresyoured.at/rss/",
+    "category": "Tech News You Actually Need to Know",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "anildash",
+    "name": "Anil Dash",
+    "site_url": "https://anildash.com",
+    "feed_url": "https://anildash.com/feed.xml",
+    "category": "Tech News You Actually Need to Know",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "troyhunt",
+    "name": "Troy Hunt",
+    "site_url": "https://www.troyhunt.com",
+    "feed_url": "https://www.troyhunt.com/rss/",
+    "category": "Tech News You Actually Need to Know",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "construction-physics",
+    "name": "Construction Physics",
+    "site_url": "https://www.construction-physics.com",
+    "feed_url": "https://www.construction-physics.com/feed",
+    "category": "Society, Industry & Economics",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "derekthompson",
+    "name": "Derek Thompson",
+    "site_url": "https://derekthompson.org",
+    "feed_url": "https://www.theatlantic.com/feed/author/derek-thompson/",
+    "category": "Society, Industry & Economics",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "steveblank",
+    "name": "Steve Blank",
+    "site_url": "https://steveblank.com",
+    "feed_url": "https://steveblank.com/feed/",
+    "category": "Society, Industry & Economics",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "tedium",
+    "name": "Tedium",
+    "site_url": "https://tedium.co",
+    "feed_url": "https://feed.tedium.co/",
+    "category": "Society, Industry & Economics",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "refactoringenglish",
+    "name": "Refactoring English",
+    "site_url": "https://refactoringenglish.com",
+    "feed_url": "https://refactoringenglish.com/index.xml",
+    "category": "Writing & Personal",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "joanwestenberg",
+    "name": "Joan Westenberg",
+    "site_url": "https://joanwestenberg.com",
+    "feed_url": "https://joanwestenberg.com/rss",
+    "category": "Writing & Personal",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "filfre",
+    "name": "The Digital Antiquarian",
+    "site_url": "https://www.filfre.net",
+    "feed_url": "https://www.filfre.net/feed/",
+    "category": "Writing & Personal",
+    "icon_url": null,
+    "enabled": true
+  },
+  {
+    "id": "herman",
+    "name": "Herman's Blog",
+    "site_url": "https://herman.bearblog.dev",
+    "feed_url": "https://herman.bearblog.dev/feed/",
+    "category": "Writing & Personal",
     "icon_url": null,
     "enabled": true
   }

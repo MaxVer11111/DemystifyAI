@@ -32,14 +32,17 @@ def load_sources() -> list[dict]:
         "SOURCES_PATH",
         os.path.join(os.path.dirname(__file__), "sources.json"),
     )
-    with open(sources_path) as f:
+    with open(sources_path, encoding="utf-8") as f:
         all_sources = json.load(f)
     return [s for s in all_sources if s.get("enabled", True)]
 
 
+DAYS_THRESHOLD = int(os.environ.get("DAYS_THRESHOLD", "7"))
+
+
 def run_fetch(source: dict) -> int:
     print(f"[pipeline] Fetching: {source['name']} ({source['feed_url']})")
-    articles = fetch_feed(source["feed_url"])
+    articles = fetch_feed(source["feed_url"], days_threshold=DAYS_THRESHOLD)
 
     if articles is None:
         print(f"[pipeline]  X Failed to fetch {source['name']}")
@@ -107,7 +110,7 @@ def run_at_a_glance() -> None:
 
     result = generate_at_a_glance(today_articles)
     if result:
-        save_at_a_glance(today, result["title"], result["themes"], result["top_posts"])
+        save_at_a_glance(today, result.get("title", ""), result.get("themes", []), result.get("top_posts", []))
         print(f"[pipeline] At a Glance saved for {today}")
     else:
         print("[pipeline] Failed to generate At a Glance")

@@ -23,10 +23,10 @@ TAG_POOL = [
 SUMMARY_PROMPT = """You are an AI assistant that helps summarize AI news articles for a non-technical audience.
 
 For the article below, produce a JSON response with exactly these fields:
-{
+{{
   "summary": "1-3 sentence plain-language summary. Assume the reader is curious but not a technical expert. Focus on WHAT happened and WHY it matters.",
   "tags": ["Tag1", "Tag2"]
-}
+}}
 
 Rules for tags:
 - Choose 1-3 tags from this list: {tag_pool}
@@ -44,7 +44,7 @@ Given the list of today's articles (with titles and summaries), produce a JSON r
 {{
   "title": "A single sentence summarizing today's feed overall. Start with 'Today's feed...'. Example: 'Today's feed spans frontier model releases, open-source breakthroughs, and product launches.'",
   "themes": ["Theme1", "Theme2", "Theme3"],
-  "topPosts": [
+  "top_posts": [
     {{"name": "Article Title 1", "desc": "Very brief reason it's important"}},
     {{"name": "Article Title 2", "desc": "Very brief reason it's important"}}
   ]
@@ -67,6 +67,10 @@ def _get_client() -> OpenAI:
     )
 
 
+def _escape_format(text: str) -> str:
+    """Escape curly braces so str.format() doesn't interpret them."""
+    return text.replace("{", "{{").replace("}", "}}")
+
 def summarize_article(title: str, content: str) -> Optional[dict]:
     if not content.strip():
         return None
@@ -76,7 +80,11 @@ def summarize_article(title: str, content: str) -> Optional[dict]:
     try:
         client = _get_client()
         model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
-        prompt = SUMMARY_PROMPT.format(tag_pool=json.dumps(TAG_POOL), title=title, content=truncated)
+        prompt = SUMMARY_PROMPT.format(
+            tag_pool=json.dumps(TAG_POOL),
+            title=_escape_format(title),
+            content=_escape_format(truncated),
+        )
 
         resp = client.chat.completions.create(
             model=model,
@@ -99,7 +107,7 @@ def summarize_article(title: str, content: str) -> Optional[dict]:
         }
 
     except Exception as e:
-        print(f"[summarizer] Error summarizing '{title}': {e}")
+        print(f"[summarizer] Error summarizing '{title[:40]}': {e}")
         return None
 
 
@@ -115,7 +123,7 @@ def generate_at_a_glance(articles: list[dict]) -> Optional[dict]:
         for a in articles:
             summaries.append(f"- {a['title']}: {a['summary']}")
 
-        articles_text = "\n".join(summaries)
+        articles_text = _escape_format("\n".join(summaries))
         prompt = AT_A_GLANCE_PROMPT.format(article_count=len(articles), articles=articles_text)
 
         resp = client.chat.completions.create(
