@@ -9,7 +9,8 @@ on:
 env:
   DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
   DEEPSEEK_BASE_URL: https://api.deepseek.com
-  DEEPSEEK_MODEL: deepseek-chat
+  DEEPSEEK_MODEL: deepseek-v4-flash
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   process-feed:
