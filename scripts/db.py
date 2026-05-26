@@ -101,12 +101,11 @@ def insert_article(
     return article_id
 
 
-def update_summary(article_id: str, summary: str, tags: list[str]) -> None:
-    import json
+def update_summary(article_id: str, summary: str) -> None:
     conn = get_connection()
     conn.execute(
-        "UPDATE articles SET ai_summary = ?, tags = ?, processed = 1 WHERE id = ?",
-        (summary, json.dumps(tags), article_id),
+        "UPDATE articles SET ai_summary = ?, processed = 1 WHERE id = ?",
+        (summary, article_id),
     )
     conn.commit()
     conn.close()

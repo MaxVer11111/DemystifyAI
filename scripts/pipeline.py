@@ -61,6 +61,7 @@ def run_fetch(source: dict) -> int:
             url=article["url"],
             published_at=article.get("published_at"),
             raw_content=article.get("raw_content", ""),
+            source_category=source.get("category", ""),
         )
         new_count += 1
 
@@ -83,11 +84,11 @@ def run_summarize(max_articles: int = 50) -> int:
         print(f"[pipeline]  Summarizing: {article['title'][:60]}...")
         result = summarize_article(article["title"], article["raw_content"])
         if result:
-            update_summary(article["id"], result["summary"], result["tags"])
+            update_summary(article["id"], result["summary"])
             success_count += 1
-            print(f"[pipeline]  V Tags: {result['tags']}")
+            print(f"[pipeline]  V Summary generated")
         else:
-            update_summary(article["id"], "", [])
+            update_summary(article["id"], "")
             print(f"[pipeline]  X Failed, marked as processed")
 
     print(f"[pipeline] Summarized {success_count}/{len(articles)} articles")
