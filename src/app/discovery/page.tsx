@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { TopNav, Footer, Section, SectionHeader } from "@/components/layout";
 import { TabBar } from "@/components/ui";
 import {
@@ -14,6 +14,7 @@ import {
   PEOPLE,
   SKILLS,
   LIBRARY,
+  CATEGORY_EMOJI,
 } from "@/components/discovery";
 import type { FeedArticle, AtAGlance } from "@/components/discovery/data";
 import { FilterChip } from "@/components/ui/FilterChip";
@@ -42,6 +43,7 @@ export default function DiscoveryPage() {
   const [atAGlance, setAtAGlance] = useState<AtAGlance | null>(null);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState("All");
 
   useEffect(() => {
     if (activeTab !== "feed") return;
@@ -73,6 +75,19 @@ export default function DiscoveryPage() {
     loadFeed();
     return () => { cancelled = true; };
   }, [activeTab]);
+
+  const categories = useMemo(() => {
+    const cats = feedArticles
+      .map((a) => a.source_category)
+      .filter(Boolean)
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .sort();
+    return cats;
+  }, [feedArticles]);
+
+  const filteredArticles = categoryFilter === "All"
+    ? feedArticles
+    : feedArticles.filter((a) => a.source_category === categoryFilter);
 
   const filteredLibrary =
     libFilter === "All" ? LIBRARY : LIBRARY.filter((item) => item.category === libFilter);
@@ -145,13 +160,36 @@ export default function DiscoveryPage() {
                 <>
                   {atAGlance && <FeedSummary data={atAGlance} />}
 
-                  {feedArticles.length === 0 && (
+                  {/* Category filter */}
+                  {categories.length > 1 && (
+                    <div className="filter-bar" style={{ marginBottom: "var(--gap-md)" }}>
+                      <FilterChip
+                        active={categoryFilter === "All"}
+                        onClick={() => setCategoryFilter("All")}
+                      >
+                        All
+                      </FilterChip>
+                      {categories.map((cat) => (
+                        <FilterChip
+                          key={cat}
+                          active={categoryFilter === cat}
+                          onClick={() => setCategoryFilter(cat)}
+                        >
+                          {CATEGORY_EMOJI[cat] || ""} {cat}
+                        </FilterChip>
+                      ))}
+                    </div>
+                  )}
+
+                  {filteredArticles.length === 0 && (
                     <p style={{ color: "var(--muted)", textAlign: "center", padding: "40px 0" }}>
-                      No articles yet. The pipeline runs daily at 7am.
+                      {categoryFilter === "All"
+                        ? "No articles yet. The pipeline runs daily at 7am."
+                        : "No articles in this category."}
                     </p>
                   )}
 
-                  {feedArticles.map((article) => (
+                  {filteredArticles.map((article) => (
                     <FeedItem key={article.url} article={article} />
                   ))}
                 </>
