@@ -18,8 +18,9 @@ CREATE TABLE IF NOT EXISTS articles (
     author      TEXT,
     url         TEXT NOT NULL UNIQUE,
     published_at TEXT,
-    raw_content TEXT,
-    ai_summary  TEXT,
+    raw_content   TEXT,
+    source_category TEXT,
+    ai_summary    TEXT,
     tags        TEXT,
     fetched_at  TEXT NOT NULL,
     processed   INTEGER DEFAULT 0
@@ -59,6 +60,11 @@ def get_connection() -> sqlite3.Connection:
 def init_db() -> None:
     conn = get_connection()
     conn.executescript(SCHEMA_SQL)
+    # Migration: add source_category column for existing databases
+    try:
+        conn.execute("ALTER TABLE articles ADD COLUMN source_category TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
     conn.commit()
     conn.close()
 
@@ -78,6 +84,7 @@ def insert_article(
     url: str,
     published_at: Optional[str],
     raw_content: str,
+    source_category: str = "",
 ) -> str:
     import hashlib
     article_id = hashlib.sha256(url.encode()).hexdigest()[:16]
@@ -85,9 +92,9 @@ def insert_article(
     conn = get_connection()
     conn.execute(
         """INSERT OR IGNORE INTO articles
-           (id, source_id, source_name, title, author, url, published_at, raw_content, fetched_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (article_id, source_id, source_name, title, author, url, published_at, raw_content, now),
+           (id, source_id, source_name, title, author, url, published_at, raw_content, source_category, fetched_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (article_id, source_id, source_name, title, author, url, published_at, raw_content, source_category, now),
     )
     conn.commit()
     conn.close()
@@ -117,7 +124,7 @@ def get_unprocessed_articles() -> list[dict]:
 def get_recent_articles(limit: int = 50) -> list[dict]:
     conn = get_connection()
     rows = conn.execute(
-        """SELECT source_name, title, author, url, published_at,
+        """SELECT source_name, source_category, title, author, url, published_at,
                   ai_summary, tags, raw_content
            FROM articles
            WHERE processed = 1
