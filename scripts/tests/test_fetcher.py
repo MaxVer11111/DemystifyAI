@@ -1,11 +1,149 @@
 """Tests for the RSS feed fetcher module."""
 
+import json
+import os
+import re
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 import pytest
 
 from fetcher import fetch_feed
+
+SOURCES_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sources.json")
+
+REQUIRED_FIELDS = {"id", "name", "site_url", "feed_url", "category", "enabled"}
+
+EXPECTED_NEW_SOURCES = {
+    "simonwillison",
+    "garymarcus",
+    "minimaxir",
+    "geohot",
+    "lcamtuf",
+    "micahflee",
+    "brutecat",
+    "berthub",
+    "mjg59",
+    "tedunangst",
+    "antirez",
+    "mitchellh",
+    "oldnewthing",
+    "matklad",
+    "jyn",
+    "eli",
+    "fabiensanglard",
+    "bernsteinbear",
+    "sgtatham",
+    "stapelberg",
+    "entropicthoughts",
+    "xeiaso",
+    "susam",
+    "overreacted",
+    "jimnielsen",
+    "lucumr",
+    "miguelgrinberg",
+    "geoffreylitt",
+    "skyfall",
+    "pixelmelt",
+    "seangoedecke",
+    "rachelbythebay",
+    "terriblesoftware",
+    "hillelwayne",
+    "worksonmymachine",
+    "evanhahn",
+    "rakhim",
+    "gilesthomas",
+    "hugotunius",
+    "chadnauseam",
+    "danielchasehooper",
+    "grantslatton",
+    "nesbitt",
+    "timsh",
+    "jayd",
+    "philiplaine",
+    "danieldelaney",
+    "martinalderson",
+    "tomrenner",
+    "utcc",
+    "matduggan",
+    "dragas",
+    "jeffgeerling",
+    "righto",
+    "downtowndougbrown",
+    "oldvcr",
+    "abortretry",
+    "dfarq",
+    "johndcook",
+    "bogdanthegeek",
+    "computerrip",
+    "shkspr",
+    "xania",
+    "heyparis",
+    "ericmigi",
+    "keygen",
+    "idiallo",
+    "maurycyz",
+    "borretti",
+    "simone",
+    "danielwirtz",
+    "aresluna",
+    "beej",
+    "thekeyword",
+}
+
+
+def test_sources_json_structure():
+    """All sources have required fields and valid types."""
+    with open(SOURCES_PATH, encoding="utf-8") as f:
+        sources = json.load(f)
+
+    assert isinstance(sources, list)
+    assert len(sources) > 0
+
+    for source in sources:
+        missing = REQUIRED_FIELDS - set(source.keys())
+        assert not missing, f"Source {source.get('id', '?')} missing fields: {missing}"
+        assert isinstance(source["id"], str) and source["id"]
+        assert isinstance(source["name"], str) and source["name"]
+        assert source["feed_url"].startswith("http"), f"{source['id']}: invalid feed_url"
+        assert isinstance(source["enabled"], bool)
+
+
+def test_new_sources_are_present():
+    """All expected new sources from the OPML expansion are present."""
+    with open(SOURCES_PATH, encoding="utf-8") as f:
+        sources = json.load(f)
+
+    present_ids = {s["id"] for s in sources}
+    missing = EXPECTED_NEW_SOURCES - present_ids
+    assert not missing, f"Missing expected sources: {missing}"
+
+
+def test_no_duplicate_ids():
+    """No duplicate source IDs exist."""
+    with open(SOURCES_PATH, encoding="utf-8") as f:
+        sources = json.load(f)
+
+    ids = [s["id"] for s in sources]
+    assert len(ids) == len(set(ids)), "Duplicate source IDs found"
+
+
+def test_no_duplicate_feed_urls():
+    """No duplicate feed URLs exist."""
+    with open(SOURCES_PATH, encoding="utf-8") as f:
+        sources = json.load(f)
+
+    urls = [s["feed_url"] for s in sources]
+    assert len(urls) == len(set(urls)), "Duplicate feed URLs found"
+
+
+def test_enabled_sources_have_valid_ids():
+    """Source IDs are alphanumeric with hyphens only."""
+    with open(SOURCES_PATH, encoding="utf-8") as f:
+        sources = json.load(f)
+
+    for s in sources:
+        assert re.match(r"^[a-z0-9-]+$", s["id"]), f"Invalid id: {s['id']}"
 
 
 def make_entry(
