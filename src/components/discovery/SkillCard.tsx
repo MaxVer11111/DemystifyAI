@@ -1,5 +1,8 @@
+"use client";
+
 import { Tag } from "../ui/Tag";
 import { Button } from "../ui/Button";
+import { TiltCard } from "@/components/animations";
 import type { Skill } from "./data";
 
 interface SkillCardProps {
@@ -8,7 +11,7 @@ interface SkillCardProps {
 
 export function SkillCard({ skill }: SkillCardProps) {
   return (
-    <div className="skill-card">
+    <TiltCard className="skill-card">
       <div className="skill-header">
         <h3 style={{ fontSize: 17 }}>{skill.title}</h3>
         <span className="skill-stars">★ {skill.stars}</span>
@@ -33,6 +36,6 @@ export function SkillCard({ skill }: SkillCardProps) {
           Open repo &rarr;
         </Button>
       </div>
-    </div>
+    </TiltCard>
   );
 }

@@ -1,6 +1,9 @@
+"use client";
+
 import { Avatar } from "../ui/Avatar";
 import { Tag } from "../ui/Tag";
 import { Button } from "../ui/Button";
+import { TiltCard, MagneticLink } from "@/components/animations";
 import type { Person } from "./data";
 
 interface PersonCardProps {
@@ -9,7 +12,7 @@ interface PersonCardProps {
 
 export function PersonCard({ person }: PersonCardProps) {
   return (
-    <div className="person-card">
+    <TiltCard className="person-card">
       <div className="person-header">
         <Avatar initials={person.initials} background={person.color} color={person.fg} />
         <div className="person-info">
@@ -24,16 +27,18 @@ export function PersonCard({ person }: PersonCardProps) {
         ))}
       </div>
       <div className="person-link">
-        <Button
-          variant="secondary"
-          size="xs"
-          href={`https://x.com/${person.handle.replace("@", "")}`}
-          target="_blank"
-          rel="noopener"
-        >
-          Follow on X &rarr;
-        </Button>
+        <MagneticLink>
+          <Button
+            variant="secondary"
+            size="xs"
+            href={`https://x.com/${person.handle.replace("@", "")}`}
+            target="_blank"
+            rel="noopener"
+          >
+            Follow on X &rarr;
+          </Button>
+        </MagneticLink>
       </div>
-    </div>
+    </TiltCard>
   );
 }

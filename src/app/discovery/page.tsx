@@ -18,6 +18,7 @@ import {
 } from "@/components/discovery";
 import type { FeedArticle, AtAGlance } from "@/components/discovery/data";
 import { FilterChip } from "@/components/ui/FilterChip";
+import { AnimatedPanel, AnimatedInView } from "@/components/animations";
 
 const TABS = [
   { key: "feed", label: "⚡ Live Feed" },
@@ -37,6 +38,7 @@ const LIBRARY_CATEGORIES = [
 export default function DiscoveryPage() {
   const [activeTab, setActiveTab] = useState("feed");
   const [libFilter, setLibFilter] = useState("All");
+  const [peopleFilter, setPeopleFilter] = useState("All");
 
   // Feed data state
   const [feedArticles, setFeedArticles] = useState<FeedArticle[]>([]);
@@ -56,7 +58,7 @@ export default function DiscoveryPage() {
       try {
         const res = await fetch("/api/feed");
         if (!res.ok) throw new Error(`Feed API error: ${res.status}`);
-        const data = await res.json();
+        const data: { articles: FeedArticle[]; at_a_glance: AtAGlance | null } = await res.json();
         if (!cancelled) {
           setFeedArticles(data.articles || []);
           setAtAGlance(data.at_a_glance || null);
@@ -92,6 +94,14 @@ export default function DiscoveryPage() {
   const filteredLibrary =
     libFilter === "All" ? LIBRARY : LIBRARY.filter((item) => item.category === libFilter);
 
+  const peopleCategories = useMemo(() => {
+    const cats = [...new Set(PEOPLE.map((p) => p.category))].sort();
+    return ["All", ...cats];
+  }, []);
+
+  const filteredPeople =
+    peopleFilter === "All" ? PEOPLE : PEOPLE.filter((p) => p.category === peopleFilter);
+
   return (
     <>
       <TopNav
@@ -110,6 +120,7 @@ export default function DiscoveryPage() {
         <main className="discovery-content">
           {/* Feed Tab */}
           {activeTab === "feed" && (
+            <AnimatedPanel key="feed" direction="left">
             <Section>
               <SectionHeader
                 title="Live AI Feed"
@@ -166,6 +177,7 @@ export default function DiscoveryPage() {
                       <FilterChip
                         active={categoryFilter === "All"}
                         onClick={() => setCategoryFilter("All")}
+                        layoutId="feed-filter"
                       >
                         All
                       </FilterChip>
@@ -174,6 +186,7 @@ export default function DiscoveryPage() {
                           key={cat}
                           active={categoryFilter === cat}
                           onClick={() => setCategoryFilter(cat)}
+                          layoutId="feed-filter"
                         >
                           {CATEGORY_EMOJI[cat] || ""} {cat}
                         </FilterChip>
@@ -189,50 +202,72 @@ export default function DiscoveryPage() {
                     </p>
                   )}
 
-                  {filteredArticles.map((article) => (
-                    <FeedItem key={article.url} article={article} />
+                  {filteredArticles.map((article, i) => (
+                    <AnimatedInView key={article.url} delay={i * 0.05}>
+                      <FeedItem article={article} />
+                    </AnimatedInView>
                   ))}
                 </>
               )}
             </Section>
+            </AnimatedPanel>
           )}
 
           {/* People Tab */}
           {activeTab === "people" && (
+            <AnimatedPanel key="people" direction="left">
             <Section>
               <SectionHeader
                 title="People to Follow"
                 description="A hand-picked starter pack of the voices shaping AI — educators, researchers, product leaders, and builders. Each one chosen because they consistently make the complex feel clear."
               />
 
-              <div style={{ marginBottom: "var(--gap-md)" }}>
-                <p className="eyebrow">AI Educators & Researchers</p>
+              <div className="filter-bar">
+                {peopleCategories.map((cat) => (
+                  <FilterChip
+                    key={cat}
+                    active={peopleFilter === cat}
+                    onClick={() => setPeopleFilter(cat)}
+                    layoutId="people-filter"
+                  >
+                    {cat}
+                  </FilterChip>
+                ))}
               </div>
-              <div className="people-grid">
-                {PEOPLE.map((person) => (
-                  <PersonCard key={person.handle} person={person} />
+
+              <div className="people-grid" key={peopleFilter}>
+                {filteredPeople.map((person, i) => (
+                  <AnimatedInView key={person.handle} delay={i * 0.05}>
+                    <PersonCard person={person} />
+                  </AnimatedInView>
                 ))}
               </div>
             </Section>
+            </AnimatedPanel>
           )}
 
           {/* Skills Tab */}
           {activeTab === "skills" && (
+            <AnimatedPanel key="skills" direction="left">
             <Section>
               <SectionHeader
                 title="Agentic Skills & Tools"
                 description="The best open-source agent skills, frameworks, and developer tools — ranked by community adoption and explained in plain language."
               />
               <div className="grid-2">
-                {SKILLS.map((skill) => (
-                  <SkillCard key={skill.url} skill={skill} />
+                {SKILLS.map((skill, i) => (
+                  <AnimatedInView key={skill.url} delay={i * 0.05}>
+                    <SkillCard skill={skill} />
+                  </AnimatedInView>
                 ))}
               </div>
             </Section>
+            </AnimatedPanel>
           )}
 
           {/* Library Tab */}
           {activeTab === "library" && (
+            <AnimatedPanel key="library" direction="left">
             <Section>
               <SectionHeader
                 title="Resource Library"
@@ -245,6 +280,7 @@ export default function DiscoveryPage() {
                     key={cat}
                     active={libFilter === cat}
                     onClick={() => setLibFilter(cat)}
+                    layoutId="library-filter"
                   >
                     {cat}
                   </FilterChip>
@@ -252,8 +288,10 @@ export default function DiscoveryPage() {
               </div>
 
               <div className="grid-2">
-                {filteredLibrary.map((item) => (
-                  <LibraryCard key={item.title} item={item} />
+                {filteredLibrary.map((item, i) => (
+                  <AnimatedInView key={item.title} delay={i * 0.05}>
+                    <LibraryCard item={item} />
+                  </AnimatedInView>
                 ))}
               </div>
 
@@ -264,6 +302,7 @@ export default function DiscoveryPage() {
                   description="Tools we use and recommend for learning, designing, and building with AI."
                 />
                 <div className="app-grid">
+                  <AnimatedInView delay={0}>
                   <AppCard
                     name="ima"
                     domain="Learning"
@@ -273,6 +312,8 @@ export default function DiscoveryPage() {
                       <img src="/images/ima.jpg" alt="ima" width={28} height={28} style={{ borderRadius: 4 }} />
                     }
                   />
+                  </AnimatedInView>
+                  <AnimatedInView delay={0.05}>
                   <AppCard
                     name="Open Design"
                     domain="Design"
@@ -282,6 +323,8 @@ export default function DiscoveryPage() {
                       <img src="/images/opendesign.png" alt="Open Design" width={28} height={28} style={{ borderRadius: 4 }} />
                     }
                   />
+                  </AnimatedInView>
+                  <AnimatedInView delay={0.1}>
                   <AppCard
                     name="Claude Code"
                     domain="Coding"
@@ -291,9 +334,11 @@ export default function DiscoveryPage() {
                       <img src="/images/claude-code.png" alt="Claude Code" width={28} height={28} style={{ borderRadius: 4 }} />
                     }
                   />
+                  </AnimatedInView>
                 </div>
               </div>
             </Section>
+            </AnimatedPanel>
           )}
         </main>
       </div>

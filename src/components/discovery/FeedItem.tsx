@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { GlowEffect, MagneticLink } from "@/components/animations";
 import type { FeedArticle } from "./data";
 import { CATEGORY_EMOJI } from "./data";
 
@@ -25,60 +26,64 @@ export function FeedItem({ article }: FeedItemProps) {
   const emoji = CATEGORY_EMOJI[category] || "";
 
   return (
-    <div className="feed-item">
-      <div className="feed-article">
-        <div className="feed-article-meta">
-          <span className="feed-article-source">{article.source_name}</span>
-          {article.author && (
+    <GlowEffect>
+      <div className="feed-item">
+        <div className="feed-article">
+          <div className="feed-article-meta">
+            <span className="feed-article-source">{article.source_name}</span>
+            {article.author && (
+              <>
+                <span className="feed-article-sep">·</span>
+                <span className="feed-article-author">{article.author}</span>
+              </>
+            )}
+            <span className="feed-article-sep">·</span>
+            <span className="feed-article-time">{formatDate(article.published_at)}</span>
+          </div>
+
+          {category && (
+            <div className="feed-article-tags">
+              <span className="feed-article-tag feed-article-tag-category">
+                {emoji} {category}
+              </span>
+            </div>
+          )}
+
+          <h3 className="feed-article-title">{article.title}</h3>
+
+          {article.ai_summary && (
+            <p className="feed-article-summary">{article.ai_summary}</p>
+          )}
+
+          {article.raw_content && (
             <>
-              <span className="feed-article-sep">·</span>
-              <span className="feed-article-author">{article.author}</span>
+              <button
+                className="btn btn-ghost btn-xs feed-article-toggle"
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "▲ Hide full article" : "▼ Read full article"}
+              </button>
+
+              {expanded && (
+                <div className="feed-article-full">
+                  <p>{article.raw_content}</p>
+                </div>
+              )}
             </>
           )}
-          <span className="feed-article-sep">·</span>
-          <span className="feed-article-time">{formatDate(article.published_at)}</span>
-        </div>
 
-        {category && (
-          <div className="feed-article-tags">
-            <span className="feed-article-tag feed-article-tag-category">
-              {emoji} {category}
-            </span>
-          </div>
-        )}
-
-        <h3 className="feed-article-title">{article.title}</h3>
-
-        {article.ai_summary && (
-          <p className="feed-article-summary">{article.ai_summary}</p>
-        )}
-
-        {article.raw_content && (
-          <>
-            <button
-              className="btn btn-ghost btn-xs feed-article-toggle"
-              onClick={() => setExpanded(!expanded)}
+          <MagneticLink>
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="feed-article-link"
             >
-              {expanded ? "▲ Hide full article" : "▼ Read full article"}
-            </button>
-
-            {expanded && (
-              <div className="feed-article-full">
-                <p>{article.raw_content}</p>
-              </div>
-            )}
-          </>
-        )}
-
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="feed-article-link"
-        >
-          Read original →
-        </a>
+              Read original →
+            </a>
+          </MagneticLink>
+        </div>
       </div>
-    </div>
+    </GlowEffect>
   );
 }
