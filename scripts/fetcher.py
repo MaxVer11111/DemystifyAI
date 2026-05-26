@@ -13,7 +13,7 @@ from typing import Optional
 USER_AGENT = "DemystifyAI/1.0 (feed fetcher; +https://demystifyai.com)"
 
 
-def fetch_feed(feed_url: str, days_threshold: Optional[int] = None) -> Optional[list[dict]]:
+def fetch_feed(feed_url: str, days_threshold: Optional[int] = None, min_content_length: int = 100) -> Optional[list[dict]]:
     try:
         resp = requests.get(feed_url, timeout=30, headers={"User-Agent": USER_AGENT})
         resp.raise_for_status()
@@ -35,12 +35,16 @@ def fetch_feed(feed_url: str, days_threshold: Optional[int] = None) -> Optional[
         if not url:
             continue
 
+        raw_content = _clean_html(content)
+        if len(raw_content) < min_content_length:
+            continue
+
         articles.append({
             "title": _clean_html(title),
             "url": url,
             "author": author,
             "published_at": published,
-            "raw_content": _clean_html(content),
+            "raw_content": raw_content,
         })
 
     if days_threshold is not None:

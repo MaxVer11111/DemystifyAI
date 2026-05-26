@@ -52,7 +52,7 @@ Given the list of today's articles (with titles and summaries), produce a JSON r
 
 Rules:
 - themes: 2-5 broad themes that capture what today's articles are about
-- topPosts: 2-4 most important articles, sorted by importance. Keep desc under 10 words.
+- top_posts: 2-4 most important articles, sorted by importance. Keep desc under 10 words.
 - Be honest — if nothing stands out, just list the top articles without hyperbole.
 
 Today's articles ({article_count} total):
@@ -79,7 +79,7 @@ def summarize_article(title: str, content: str) -> Optional[dict]:
 
     try:
         client = _get_client()
-        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
         prompt = SUMMARY_PROMPT.format(
             tag_pool=json.dumps(TAG_POOL),
             title=_escape_format(title),
@@ -140,7 +140,7 @@ def generate_at_a_glance(articles: list[dict]) -> Optional[dict]:
         return {
             "title": result.get("title", "").strip(),
             "themes": result.get("themes", []),
-            "topPosts": result.get("topPosts", []),
+            "top_posts": result.get("top_posts", []),
         }
 
     except Exception as e:
