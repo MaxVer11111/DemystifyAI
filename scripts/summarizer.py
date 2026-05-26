@@ -117,7 +117,7 @@ def generate_at_a_glance(articles: list[dict]) -> Optional[dict]:
 
     try:
         client = _get_client()
-        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
 
         summaries = []
         for a in articles:
