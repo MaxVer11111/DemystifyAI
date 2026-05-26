@@ -1,8 +1,7 @@
-"""Tests for database layer with source_category support."""
+"""Tests for the SQLite database layer."""
 
 import sys
 import os
-import json
 import tempfile
 import pytest
 
@@ -12,13 +11,14 @@ from db import init_db, get_connection, insert_article, get_recent_articles
 
 
 @pytest.fixture(autouse=True)
-def _in_memory_db(monkeypatch):
-    """Use a temporary in-memory database for each test."""
+def _isolated_db(monkeypatch):
+    """Use a temporary file-backed database for each test."""
     tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
     monkeypatch.setenv("DB_PATH", tmp.name)
     init_db()
     yield
     tmp.close()
+    os.unlink(tmp.name)
 
 
 def test_insert_article_with_source_category():
