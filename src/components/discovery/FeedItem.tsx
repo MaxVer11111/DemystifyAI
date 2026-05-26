@@ -2,29 +2,10 @@
 
 import { useState } from "react";
 import type { FeedArticle } from "./data";
+import { CATEGORY_EMOJI } from "./data";
 
 interface FeedItemProps {
   article: FeedArticle;
-}
-
-const TAG_COLORS: Record<string, string> = {
-  "Model Release":   "oklch(65% 0.14 30)",
-  "Research":        "oklch(60% 0.12 260)",
-  "Product Launch":  "oklch(62% 0.13 160)",
-  "Policy & Safety": "oklch(60% 0.08 50)",
-  "Industry News":   "oklch(55% 0.06 240)",
-  "Tooling":         "oklch(62% 0.10 300)",
-  "AI & Society":    "oklch(60% 0.08 10)",
-  "Coding & Building": "oklch(58% 0.12 200)",
-};
-
-function parseTags(raw: string): string[] {
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
 }
 
 function formatDate(iso: string | null): string {
@@ -40,7 +21,8 @@ function formatDate(iso: string | null): string {
 
 export function FeedItem({ article }: FeedItemProps) {
   const [expanded, setExpanded] = useState(false);
-  const tags = parseTags(article.tags);
+  const category = article.source_category;
+  const emoji = CATEGORY_EMOJI[category] || "";
 
   return (
     <div className="feed-item">
@@ -57,17 +39,11 @@ export function FeedItem({ article }: FeedItemProps) {
           <span className="feed-article-time">{formatDate(article.published_at)}</span>
         </div>
 
-        {tags.length > 0 && (
+        {category && (
           <div className="feed-article-tags">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="feed-article-tag"
-                style={{ background: TAG_COLORS[tag] || "var(--muted)" }}
-              >
-                {tag}
-              </span>
-            ))}
+            <span className="feed-article-tag feed-article-tag-category">
+              {emoji} {category}
+            </span>
           </div>
         )}
 
