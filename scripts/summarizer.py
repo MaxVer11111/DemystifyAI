@@ -1,5 +1,5 @@
 """
-DeepSeek API integration for article summarization and tagging.
+DeepSeek API integration for article summarization.
 Uses OpenAI-compatible SDK to call DeepSeek API.
 """
 
