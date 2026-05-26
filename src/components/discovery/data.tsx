@@ -33,6 +33,7 @@ export interface LibraryItem {
 
 export interface FeedArticle {
   source_name: string;
+  source_category: string;
   title: string;
   author: string | null;
   url: string;
@@ -62,6 +63,27 @@ export interface FeedPost {
   bg: string;
   fg: string;
 }
+
+export const CATEGORY_EMOJI: Record<string, string> = {
+  "AI & Machine Learning": "🧠",
+  "AI & Tech": "🤖",
+  "Cybersecurity & Privacy": "🔒",
+  "Systems Programming & Low-Level": "⚙️",
+  "Web Development & Frontend": "🌐",
+  "Software Engineering & Career": "💻",
+  "DevOps, Infrastructure & SysAdmin": "🚀",
+  "Hardware & Electronics": "🔧",
+  "Vintage & Retro Computing": "📼",
+  "Math, Science & Research": "🔬",
+  "Tech Culture & Commentary": "🗣️",
+  "Startups, Business & Investing": "💡",
+  "Gaming & Interactive Media History": "🎮",
+  "Writing, Communication & Personal": "✍️",
+  "Ideas, Essays & Big Thinking": "💭",
+  "Tech News You Actually Need to Know": "📰",
+  "Society, Industry & Economics": "🏛️",
+  "Writing & Personal": "📝",
+};
 
 export const PEOPLE: Person[] = [
   {
