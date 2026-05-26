@@ -9,29 +9,12 @@ from openai import OpenAI
 from typing import Optional
 
 
-TAG_POOL = [
-    "Model Release",
-    "Research",
-    "Product Launch",
-    "Policy & Safety",
-    "Industry News",
-    "Tooling",
-    "AI & Society",
-    "Coding & Building",
-]
-
 SUMMARY_PROMPT = """You are an AI assistant that helps summarize AI news articles for a non-technical audience.
 
 For the article below, produce a JSON response with exactly these fields:
 {{
-  "summary": "1-3 sentence plain-language summary. Assume the reader is curious but not a technical expert. Focus on WHAT happened and WHY it matters.",
-  "tags": ["Tag1", "Tag2"]
+  "summary": "1-3 sentence plain-language summary. Assume the reader is curious but not a technical expert. Focus on WHAT happened and WHY it matters."
 }}
-
-Rules for tags:
-- Choose 1-3 tags from this list: {tag_pool}
-- Only use tags from the list. Do not invent new tags.
-- Choose the most specific tags that apply.
 
 Article title: {title}
 Article text:
@@ -81,7 +64,6 @@ def summarize_article(title: str, content: str) -> Optional[dict]:
         client = _get_client()
         model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
         prompt = SUMMARY_PROMPT.format(
-            tag_pool=json.dumps(TAG_POOL),
             title=_escape_format(title),
             content=_escape_format(truncated),
         )
@@ -97,13 +79,8 @@ def summarize_article(title: str, content: str) -> Optional[dict]:
         text = resp.choices[0].message.content.strip()
         result = json.loads(text)
 
-        tags = [t for t in result.get("tags", []) if t in TAG_POOL]
-        if not tags:
-            tags = ["Industry News"]
-
         return {
             "summary": result.get("summary", "").strip(),
-            "tags": tags,
         }
 
     except Exception as e:
