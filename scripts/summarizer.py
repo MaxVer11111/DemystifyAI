@@ -79,8 +79,12 @@ def summarize_article(title: str, content: str) -> Optional[dict]:
         text = resp.choices[0].message.content.strip()
         result = json.loads(text)
 
+        summary = result.get("summary", "").strip()
+        if not summary:
+            return None
+
         return {
-            "summary": result.get("summary", "").strip(),
+            "summary": summary,
         }
 
     except Exception as e:
