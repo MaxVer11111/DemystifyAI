@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/api/feed/route": "app/api/feed/route.js",
+  "/api/feed/status/route": "app/api/feed/status/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/design-system/page": "app/design-system/page.js",
+  "/discovery/page": "app/discovery/page.js",
+  "/page": "app/page.js"
+}
