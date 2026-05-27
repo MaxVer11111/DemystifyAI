@@ -56,6 +56,7 @@ scripts/.next/
 scripts/accounts.db
 
 # OpenNext
+.open-next
 
 
 # wrangler files
