@@ -7,6 +7,9 @@ import os
 import json
 from openai import OpenAI
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 
 SUMMARY_PROMPT = """You are an AI assistant that helps summarize AI news articles for a non-technical audience.
