@@ -26,6 +26,18 @@ jobs:
         working-directory: scripts
         run: python pipeline.py
 
+      - name: Commit feed data back to repository
+        run: |
+          git config user.name "DemystifyAI Bot"
+          git config user.email "bot@demystifyai.com"
+          git add src/data/feed.json
+          if git diff --staged --quiet; then
+            echo "No changes to feed.json — skipping commit"
+          else
+            git commit -m "chore: update feed data"
+            git push
+          fi
+
       - name: Upload feed data as artifact
         uses: actions/upload-artifact@v4
         with:
