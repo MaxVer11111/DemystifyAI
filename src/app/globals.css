@@ -671,6 +671,100 @@ h1, h2, h3, h4 { text-wrap: balance; }
 }
 .feed-article-link:hover { text-decoration: underline; }
 
+/* ─── X/Twitter Post Card ──────────────────────────── */
+.x-post {
+  flex: 1;
+  min-width: 0;
+}
+.x-post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.x-post-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.x-post-author {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.x-post-name {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.x-post-handle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.x-post-content {
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.x-post-images {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.x-post-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  object-fit: cover;
+  max-height: 400px;
+}
+.x-post-image-1 { grid-column: 1 / -1; }
+.x-post-image-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.x-post-image-3 {
+  grid-template-columns: 1fr 1fr;
+}
+.x-post-image-4 {
+  grid-template-columns: 1fr 1fr;
+}
+.x-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.x-post-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.x-post-link {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+}
+.x-post-link:hover {
+  text-decoration: underline;
+}
+
 /* ─── Feed Summary ────────────────────────────────────────────────────── */
 .feed-summary {
   background: var(--surface);

@@ -42,6 +42,27 @@ Today's articles ({article_count} total):
 {articles}
 """
 
+TWEET_AT_A_GLANCE_PROMPT = """You are an AI assistant that summarizes a daily collection of posts from AI-focused X/Twitter accounts.
+
+Given the list of today's posts (with author and content), produce a JSON response with exactly these fields:
+{{
+  "title": "A single sentence summarizing today's feed overall. Start with 'Today's feed...'. Example: 'Today's feed spans frontier model debates, coding tool tips, and product launches.'",
+  "themes": ["Theme1", "Theme2", "Theme3"],
+  "top_posts": [
+    {{"name": "Author Name", "desc": "Very brief reason their post stands out"}},
+    {{"name": "Author Name 2", "desc": "Very brief reason their post stands out"}}
+  ]
+}}
+
+Rules:
+- themes: 2-5 broad themes that capture what today's posts are about
+- top_posts: 2-4 most notable posts or authors, sorted by importance. Keep desc under 10 words.
+- Focus on substance rather than hype. Be honest about what the posts are discussing.
+
+Today's posts ({post_count} total):
+{posts}
+"""
+
 
 def _get_client() -> OpenAI:
     return OpenAI(
@@ -126,4 +147,38 @@ def generate_at_a_glance(articles: list[dict]) -> Optional[dict]:
 
     except Exception as e:
         print(f"[summarizer] Error generating At a Glance: {e}")
+        return None
+
+
+def generate_tweet_at_a_glance(posts: list[dict]) -> Optional[dict]:
+    """Generate At a Glance summary from a list of X posts.
+    posts: list of {"author": str, "text": str}
+    """
+    if not posts:
+        return None
+    try:
+        client = _get_client()
+        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
+        post_lines = []
+        for p in posts:
+            text = p.get("text", "")[:200]  # truncate each post
+            post_lines.append(f"- {p['author']}: {text}")
+        posts_text = _escape_format("\n".join(post_lines))
+        prompt = TWEET_AT_A_GLANCE_PROMPT.format(post_count=len(posts), posts=posts_text)
+        resp = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=1024,
+            response_format={"type": "json_object"},
+        )
+        text = resp.choices[0].message.content.strip()
+        result = json.loads(text)
+        return {
+            "title": result.get("title", "").strip(),
+            "themes": result.get("themes", []),
+            "top_posts": result.get("top_posts", []),
+        }
+    except Exception as e:
+        print(f"[summarizer] Error generating tweet At a Glance: {e}")
         return None

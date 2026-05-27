@@ -62,6 +62,20 @@ export interface FeedPost {
   score: string;
   bg: string;
   fg: string;
+  images?: string[];
+  url?: string;
+}
+
+export interface XPost {
+  id: string;
+  author: string;
+  handle: string;
+  text: string;
+  images: string[];
+  url: string;
+  likes: number;
+  reposts: number;
+  created_at: string;
 }
 
 export const CATEGORY_EMOJI: Record<string, string> = {
@@ -536,6 +550,33 @@ export function processedToFeedPost(p: ProcessedPost): FeedPost {
     score: `${p.score}/10`,
     bg: c.bg,
     fg: c.fg,
+  };
+}
+
+export function xPostToFeedPost(post: XPost, personMap: Record<string, Person>): FeedPost {
+  const person = personMap[post.handle];
+  const initials = person?.initials || post.author.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const bg = person?.color || "oklch(70% 0.06 200)";
+  const fg = person?.fg || "oklch(30% 0.06 200)";
+
+  const hoursAgo = Math.round((Date.now() - new Date(post.created_at).getTime()) / (1000 * 60 * 60));
+  const timeStr = hoursAgo < 1 ? "just now" : hoursAgo < 24 ? `${hoursAgo}h ago` : `${Math.round(hoursAgo / 24)}d ago`;
+
+  const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
+
+  return {
+    initials,
+    name: post.author,
+    handle: post.handle,
+    content: post.text,
+    time: timeStr,
+    likes: formatCount(post.likes),
+    reposts: formatCount(post.reposts),
+    score: "",
+    bg,
+    fg,
+    images: post.images,
+    url: post.url,
   };
 }
 

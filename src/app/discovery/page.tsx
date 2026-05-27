@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { TopNav, Footer, Section, SectionHeader } from "@/components/layout";
 import { TabBar } from "@/components/ui";
 import {
-  FeedItem,
+  FeedPostItem,
   FeedSummary,
   PersonCard,
   SkillCard,
@@ -14,9 +14,9 @@ import {
   PEOPLE,
   SKILLS,
   LIBRARY,
-  CATEGORY_EMOJI,
+  xPostToFeedPost,
 } from "@/components/discovery";
-import type { FeedArticle, AtAGlance } from "@/components/discovery/data";
+import type { AtAGlance, Person, XPost } from "@/components/discovery/data";
 import { FilterChip } from "@/components/ui/FilterChip";
 import { AnimatedPanel, AnimatedInView } from "@/components/animations";
 
@@ -41,11 +41,19 @@ export default function DiscoveryPage() {
   const [peopleFilter, setPeopleFilter] = useState("All");
 
   // Feed data state
-  const [feedArticles, setFeedArticles] = useState<FeedArticle[]>([]);
+  const [xPosts, setXPosts] = useState<XPost[]>([]);
   const [atAGlance, setAtAGlance] = useState<AtAGlance | null>(null);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [handleFilter, setHandleFilter] = useState("All");
+
+  const personMap = useMemo(() => {
+    const map: Record<string, Person> = {};
+    for (const p of PEOPLE) {
+      map[p.handle] = p;
+    }
+    return map;
+  }, []);
 
   useEffect(() => {
     if (activeTab !== "feed") return;
@@ -58,9 +66,9 @@ export default function DiscoveryPage() {
       try {
         const res = await fetch("/api/feed");
         if (!res.ok) throw new Error(`Feed API error: ${res.status}`);
-        const data: { articles: FeedArticle[]; at_a_glance: AtAGlance | null } = await res.json();
+        const data: { posts: XPost[]; at_a_glance: AtAGlance | null } = await res.json();
         if (!cancelled) {
-          setFeedArticles(data.articles || []);
+          setXPosts(data.posts || []);
           setAtAGlance(data.at_a_glance || null);
         }
       } catch (err) {
@@ -78,18 +86,14 @@ export default function DiscoveryPage() {
     return () => { cancelled = true; };
   }, [activeTab]);
 
-  const categories = useMemo(() => {
-    const cats = feedArticles
-      .map((a) => a.source_category)
-      .filter(Boolean)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .sort();
-    return cats;
-  }, [feedArticles]);
+  const handles = useMemo(() => {
+    const hs = [...new Set(xPosts.map((p) => p.handle))].sort();
+    return hs;
+  }, [xPosts]);
 
-  const filteredArticles = categoryFilter === "All"
-    ? feedArticles
-    : feedArticles.filter((a) => a.source_category === categoryFilter);
+  const filteredPosts = handleFilter === "All"
+    ? xPosts
+    : xPosts.filter((p) => p.handle === handleFilter);
 
   const filteredLibrary =
     libFilter === "All" ? LIBRARY : LIBRARY.filter((item) => item.category === libFilter);
@@ -161,7 +165,7 @@ export default function DiscoveryPage() {
                   </div>
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="feed-item">
-                      <div className="shimmer" style={{ width: "100%", height: 80, borderRadius: "var(--radius)" }} />
+                      <div className="shimmer" style={{ width: "100%", height: 100, borderRadius: "var(--radius)" }} />
                     </div>
                   ))}
                 </>
@@ -171,40 +175,43 @@ export default function DiscoveryPage() {
                 <>
                   {atAGlance && <FeedSummary data={atAGlance} />}
 
-                  {/* Category filter */}
-                  {categories.length > 1 && (
+                  {/* User filter */}
+                  {handles.length > 1 && (
                     <div className="filter-bar" style={{ marginBottom: "var(--gap-md)" }}>
                       <FilterChip
-                        active={categoryFilter === "All"}
-                        onClick={() => setCategoryFilter("All")}
-                        layoutId="feed-filter"
+                        active={handleFilter === "All"}
+                        onClick={() => setHandleFilter("All")}
+                        layoutId="x-filter"
                       >
                         All
                       </FilterChip>
-                      {categories.map((cat) => (
-                        <FilterChip
-                          key={cat}
-                          active={categoryFilter === cat}
-                          onClick={() => setCategoryFilter(cat)}
-                          layoutId="feed-filter"
-                        >
-                          {CATEGORY_EMOJI[cat] || ""} {cat}
-                        </FilterChip>
-                      ))}
+                      {handles.map((handle) => {
+                        const person = personMap[handle];
+                        return (
+                          <FilterChip
+                            key={handle}
+                            active={handleFilter === handle}
+                            onClick={() => setHandleFilter(handle)}
+                            layoutId="x-filter"
+                          >
+                            {person?.initials} {person?.name || handle}
+                          </FilterChip>
+                        );
+                      })}
                     </div>
                   )}
 
-                  {filteredArticles.length === 0 && (
+                  {filteredPosts.length === 0 && (
                     <p style={{ color: "var(--muted)", textAlign: "center", padding: "40px 0" }}>
-                      {categoryFilter === "All"
-                        ? "No articles yet. The pipeline runs daily at 7am."
-                        : "No articles in this category."}
+                      {handleFilter === "All"
+                        ? "No posts yet. The pipeline runs daily at 7am."
+                        : "No posts from this account."}
                     </p>
                   )}
 
-                  {filteredArticles.map((article, i) => (
-                    <AnimatedInView key={article.url} delay={i * 0.05}>
-                      <FeedItem article={article} />
+                  {filteredPosts.map((post, i) => (
+                    <AnimatedInView key={post.id} delay={i * 0.05}>
+                      <FeedPostItem post={xPostToFeedPost(post, personMap)} />
                     </AnimatedInView>
                   ))}
                 </>

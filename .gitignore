@@ -46,6 +46,14 @@ temp
 
 __pycache__/
 
+# build artifacts in scripts/
+scripts/.next/
+
+# local claude code data
+.claude/
+
+# generated db
+scripts/accounts.db
 
 # OpenNext
 .open-next

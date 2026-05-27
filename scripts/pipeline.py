@@ -1,139 +1,118 @@
 #!/usr/bin/env python3
 """
-Feed pipeline orchestrator.
-Entry point for the daily feed processing pipeline.
+Feed pipeline orchestrator for X/Twitter feed experiment.
+Entry point for daily X/Twitter feed processing pipeline.
 
 Usage:
     python pipeline.py              # Full run: fetch -> summarize -> export
     python pipeline.py --fetch-only
+    python pipeline.py --summarize-only
     python pipeline.py --export-only
 """
 
 import os
 import sys
 import json
+import asyncio
 import argparse
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
-from db import (
-    init_db, article_exists, insert_article, update_summary,
-    get_unprocessed_articles, get_recent_articles,
-    save_at_a_glance, get_at_a_glance, log_fetch,
-)
-from fetcher import fetch_feed
-from summarizer import summarize_article, generate_at_a_glance
 
-
-def load_sources() -> list[dict]:
-    sources_path = os.environ.get(
-        "SOURCES_PATH",
-        os.path.join(os.path.dirname(__file__), "sources.json"),
+def load_x_users() -> list[dict]:
+    """Load the list of X users to fetch from."""
+    users_path = os.environ.get(
+        "X_USERS_PATH",
+        os.path.join(os.path.dirname(__file__), "x_users.json"),
     )
-    with open(sources_path, encoding="utf-8") as f:
-        all_sources = json.load(f)
-    return [s for s in all_sources if s.get("enabled", True)]
+    with open(users_path, encoding="utf-8") as f:
+        return json.load(f)
 
 
-DAYS_THRESHOLD = int(os.environ.get("DAYS_THRESHOLD", "7"))
+def load_existing_posts() -> list[dict]:
+    """Load posts from the existing feed.json export if available."""
+    export_path = os.environ.get(
+        "EXPORT_PATH",
+        os.path.join(os.path.dirname(__file__), "..", "src", "data", "feed.json"),
+    )
+    try:
+        with open(export_path, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("posts", [])
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
 
 
-def run_fetch(source: dict) -> int:
-    print(f"[pipeline] Fetching: {source['name']} ({source['feed_url']})")
-    articles = fetch_feed(source["feed_url"], days_threshold=DAYS_THRESHOLD)
-
-    if articles is None:
-        print(f"[pipeline]  X Failed to fetch {source['name']}")
-        log_fetch(source["id"], 0, "fetch failed")
-        return 0
-
-    new_count = 0
-    for article in articles:
-        if article_exists(article["url"]):
-            continue
-        insert_article(
-            source_id=source["id"],
-            source_name=source["name"],
-            title=article["title"],
-            author=article.get("author"),
-            url=article["url"],
-            published_at=article.get("published_at"),
-            raw_content=article.get("raw_content", ""),
-            source_category=source.get("category", ""),
-        )
-        new_count += 1
-
-    print(f"[pipeline]  V {new_count} new articles from {source['name']}")
-    log_fetch(source["id"], new_count)
-    return new_count
+def load_existing_at_a_glance() -> Optional[dict]:
+    """Load at_a_glance from the existing feed.json export if available."""
+    export_path = os.environ.get(
+        "EXPORT_PATH",
+        os.path.join(os.path.dirname(__file__), "..", "src", "data", "feed.json"),
+    )
+    try:
+        with open(export_path, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("at_a_glance")
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
 
 
-def run_summarize(max_articles: int = 50) -> int:
-    articles = get_unprocessed_articles()
-    if not articles:
-        print("[pipeline] No unprocessed articles to summarize")
-        return 0
+def run_fetch() -> list[dict]:
+    """Fetch tweets from all configured X users, skipping already-seen tweets."""
+    from fetcher_x import fetch_all_users
 
-    articles = articles[:max_articles]
-    print(f"[pipeline] Summarizing {len(articles)} articles...")
+    users = load_x_users()
 
-    success_count = 0
-    for article in articles:
-        print(f"[pipeline]  Summarizing: {article['title'][:60]}...")
-        result = summarize_article(article["title"], article["raw_content"])
-        if result:
-            update_summary(article["id"], result["summary"])
-            success_count += 1
-            print(f"[pipeline]  V Summary generated")
-        else:
-            update_summary(article["id"], "")
-            print(f"[pipeline]  X Failed, marked as processed")
+    # Gather tweet IDs from existing posts so we don't re-fetch them
+    existing_posts = load_existing_posts()
+    existing_ids = {p["id"] for p in existing_posts if "handle" in p}
+    if existing_ids:
+        print(f"[pipeline] Skipping {len(existing_ids)} already-fetched tweet IDs")
 
-    print(f"[pipeline] Summarized {success_count}/{len(articles)} articles")
-    return success_count
+    print(f"[pipeline] Fetching tweets for {len(users)} X users...")
+    try:
+        posts = asyncio.run(fetch_all_users(users, limit_per_user=10, days=7, seen_ids=existing_ids))
+        print(f"[pipeline]  V Fetched {len(posts)} new tweets total")
+        return posts
+    except Exception as e:
+        print(f"[pipeline]  X Fetch failed: {e}")
+        return []
 
 
-def run_at_a_glance() -> None:
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    recent = get_recent_articles(limit=50)
+def run_summarize(posts: list[dict]) -> Optional[dict]:
+    """Generate At a Glance summary from fetched posts."""
+    if not posts:
+        print("[pipeline] No posts to summarize")
+        return None
 
-    today_articles = [
-        {"title": a["title"], "summary": a.get("ai_summary", "") or "(no summary)"}
-        for a in recent
-        if a.get("ai_summary")
-    ][:20]
+    from summarizer import generate_tweet_at_a_glance
 
-    if not today_articles:
-        print("[pipeline] No summarized articles to generate At a Glance")
-        return
-
-    result = generate_at_a_glance(today_articles)
+    post_inputs = [
+        {"author": p.get("author", ""), "text": p.get("text", "")}
+        for p in posts
+    ]
+    print(f"[pipeline] Generating At a Glance from {len(post_inputs)} posts...")
+    result = generate_tweet_at_a_glance(post_inputs)
     if result:
-        save_at_a_glance(today, result.get("title", ""), result.get("themes", []), result.get("top_posts", []))
-        print(f"[pipeline] At a Glance saved for {today}")
+        print(f"[pipeline]  V At a Glance generated")
     else:
-        print("[pipeline] Failed to generate At a Glance")
+        print(f"[pipeline]  X Failed to generate At a Glance")
+    return result
 
 
-def run_export() -> str:
+def run_export(posts: list[dict], at_a_glance: Optional[dict]) -> str:
+    """Export posts and at_a_glance to feed.json."""
     export_path = os.environ.get(
         "EXPORT_PATH",
         os.path.join(os.path.dirname(__file__), "..", "src", "data", "feed.json"),
     )
 
-    articles = get_recent_articles(limit=50)
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    at_a_glance = get_at_a_glance(today)
-
-    if not at_a_glance:
-        yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
-        at_a_glance = get_at_a_glance(yesterday)
-
     export = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "articles": articles,
+        "posts": posts,
         "at_a_glance": at_a_glance,
     }
 
@@ -141,12 +120,12 @@ def run_export() -> str:
     with open(export_path, "w", encoding="utf-8") as f:
         json.dump(export, f, ensure_ascii=False, indent=2)
 
-    print(f"[pipeline] Exported {len(articles)} articles to {export_path}")
+    print(f"[pipeline] Exported {len(posts)} posts to {export_path}")
     return export_path
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Daily feed pipeline")
+    parser = argparse.ArgumentParser(description="X/Twitter feed pipeline")
     parser.add_argument("--fetch-only", action="store_true")
     parser.add_argument("--summarize-only", action="store_true")
     parser.add_argument("--export-only", action="store_true")
@@ -156,24 +135,23 @@ def main():
     summarize = not args.fetch_only and not args.export_only
     export_mode = args.export_only or (not args.fetch_only and not args.summarize_only)
 
+    posts: list[dict] = []
+    at_a_glance: Optional[dict] = None
+
     if fetch or args.fetch_only:
-        init_db()
-        sources = load_sources()
-        total_new = 0
-        for source in sources:
-            total_new += run_fetch(source)
-        print(f"[pipeline] Fetch complete: {total_new} new articles total")
+        posts = run_fetch()
 
     if summarize or args.summarize_only:
-        init_db()
-        summarized = run_summarize()
-        if summarized > 0:
-            run_at_a_glance()
-        print(f"[pipeline] Summarize complete")
+        if not posts:
+            posts = load_existing_posts()
+        at_a_glance = run_summarize(posts)
 
     if export_mode:
-        init_db()
-        run_export()
+        if not posts:
+            posts = load_existing_posts()
+        if not at_a_glance:
+            at_a_glance = load_existing_at_a_glance()
+        run_export(posts, at_a_glance)
         print("[pipeline] Export complete")
 
 
