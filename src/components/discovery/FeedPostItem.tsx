@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GlowEffect, MagneticLink } from "@/components/animations";
+import { Pill } from "@/components/ui";
 import type { FeedPost } from "./data";
 
 interface FeedPostItemProps {
@@ -31,6 +32,13 @@ export function FeedPostItem({ post }: FeedPostItemProps) {
 
           {/* Content */}
           <p className="x-post-content">{post.content}</p>
+
+          {/* Category */}
+          {post.category && (
+            <div style={{ marginTop: "var(--gap-xs)" }}>
+              <Pill>{post.category}</Pill>
+            </div>
+          )}
 
           {/* Images */}
           {post.images && post.images.length > 0 && (

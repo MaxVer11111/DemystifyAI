@@ -64,6 +64,7 @@ export interface FeedPost {
   fg: string;
   images?: string[];
   url?: string;
+  category?: string;
 }
 
 export interface XPost {
@@ -140,7 +141,7 @@ export const PEOPLE: Person[] = [
     initials: "GL", name: "Google Labs", role: "Google AI Tools & Experiments",
     bio: "Google's home for AI tools and experiments. Where NotebookLM, Gemini features, and new AI experiments launch first.",
     tags: ["Google", "Experiments"], color: "oklch(65% 0.08 60)", fg: "oklch(25% 0.08 60)",
-    category: "Google / Gemini / DeepMind", handle: "@googlelabs",
+    category: "Google / Gemini / DeepMind", handle: "@GoogleLabs",
   },
   {
     initials: "LR", name: "Lenny Rachitsky", role: "Product & Growth Advisor",
@@ -201,6 +202,12 @@ export const PEOPLE: Person[] = [
     bio: "The human bridge between Anthropic and the developer community. If Claude does something surprising, Alex probably has the context.",
     tags: ["Anthropic", "Community"], color: "oklch(68% 0.08 350)", fg: "oklch(28% 0.08 350)",
     category: "Anthropic / Claude", handle: "@alexalbert__",
+  },
+  {
+    initials: "CD", name: "Claude Developers", role: "Official Claude Dev Relations",
+    bio: "Official account for Claude developer updates. Product news, API changes, and tips for building with Claude.",
+    tags: ["Claude", "Developer Tools"], color: "oklch(65% 0.09 30)", fg: "#fff",
+    category: "Anthropic / Claude", handle: "@ClaudeDevs",
   },
   {
     initials: "MW", name: "Mckay Wrigley", role: "Vibe-Coding Educator",
@@ -279,6 +286,30 @@ export const PEOPLE: Person[] = [
     bio: "The sharpest thinker on communications and go-to-market strategy in tech. If you're building anything and need people to hear about it, Lulu is the playbook.",
     tags: ["GTM", "Communications"], color: "oklch(72% 0.07 10)", fg: "oklch(30% 0.07 10)",
     category: "Founders, CEOs & Investors", handle: "@lulumeservey",
+  },
+  {
+    initials: "OA", name: "OpenAI", role: "AI Research & Products",
+    bio: "Frontier AI research lab and creator of ChatGPT and GPT models. Ships cutting-edge AI to hundreds of millions of users worldwide.",
+    tags: ["AI Lab", "Products"], color: "oklch(55% 0.12 160)", fg: "#fff",
+    category: "OpenAI", handle: "@OpenAI",
+  },
+  {
+    initials: "AN", name: "Anthropic", role: "AI Research & Safety",
+    bio: "AI research company focused on safety and reliability. Creators of Claude — the most thoughtful and helpful AI assistant.",
+    tags: ["AI Lab", "Safety"], color: "oklch(55% 0.1 30)", fg: "#fff",
+    category: "Anthropic / Claude", handle: "@AnthropicAI",
+  },
+  {
+    initials: "GD", name: "Google DeepMind", role: "AI Research Lab",
+    bio: "Google's premier AI research lab. Behind Gemini, AlphaFold, and breakthroughs that push the frontier of what AI can do.",
+    tags: ["Research", "Gemini"], color: "oklch(50% 0.14 255)", fg: "#fff",
+    category: "Google / Gemini / DeepMind", handle: "@GoogleDeepMind",
+  },
+  {
+    initials: "DS", name: "DeepSeek", role: "Open-Source AI Lab",
+    bio: "Open-source AI research lab releasing frontier models. Proving that cutting-edge AI doesn't require closed-source or billion-dollar budgets.",
+    tags: ["Open Source", "Research"], color: "oklch(50% 0.12 240)", fg: "#fff",
+    category: "AI Educators & Researchers", handle: "@deepseek_ai",
   },
 ];
 
@@ -399,60 +430,70 @@ export const FEED_POSTS: FeedPost[] = [
     content: 'The best way to understand LLMs is still to build one from scratch. My updated "Zero to Hero" series now covers the full stack — tokenization through RLHF — with code you can run on a single GPU.',
     time: "2h ago", likes: "2.4K", reposts: "892", score: "9/10",
     bg: "oklch(75% 0.06 220)", fg: "oklch(35% 0.06 220)",
+    category: "AI Educators & Researchers",
   },
   {
     initials: "KW", name: "Kevin Weil", handle: "@kevinweil",
     content: "Just shipped a major update to the OpenAI API — structured outputs are now the default for all models. If you've been using JSON mode, you can simplify your parsing logic dramatically. Docs updated.",
     time: "5h ago", likes: "1.8K", reposts: "456", score: "8/10",
     bg: "oklch(70% 0.08 30)", fg: "oklch(30% 0.08 30)",
+    category: "OpenAI",
   },
   {
     initials: "SJ", name: "Steven Johnson", handle: "@stevenbjohnson",
     content: "NotebookLM just crossed a milestone I never expected: people are using it more for creative writing than for research. The AI-as-thinking-partner paradigm is real — and it's changing how ideas get developed.",
     time: "8h ago", likes: "3.1K", reposts: "1.2K", score: "9/10",
     bg: "oklch(75% 0.06 160)", fg: "oklch(35% 0.06 160)",
+    category: "AI Educators & Researchers",
   },
   {
     initials: "AA", name: "Amanda Askell", handle: "@amandaaskell",
     content: 'Giving Claude a consistent "character" isn\'t about writing a long system prompt. It\'s about curating the training data so the model naturally defaults to the traits you want. We\'ve learned more from removing data than adding it.',
     time: "12h ago", likes: "4.2K", reposts: "1.8K", score: "10/10",
     bg: "oklch(70% 0.1 280)", fg: "oklch(30% 0.1 280)",
+    category: "Anthropic / Claude",
   },
   {
     initials: "LR", name: "Lenny Rachitsky", handle: "@lennysan",
     content: "Interviewed a PM who shipped an AI feature that doubled retention. Their secret: they spent 3 weeks watching users struggle before writing a single line of code. The problem definition was the product.",
     time: "18h ago", likes: "2.7K", reposts: "634", score: "8/10",
     bg: "oklch(72% 0.07 50)", fg: "oklch(30% 0.07 50)",
+    category: "Product & Startup Leaders",
   },
   {
     initials: "BC", name: "Boris Cherny", handle: "@bcherny",
     content: "Claude Code tip: the single biggest lever for agent performance is the CLAUDE.md file. Treat it like onboarding a new engineer — tell them the tech stack, conventions, and gotchas. A 50-line CLAUDE.md beats a 500-line system prompt.",
     time: "1d ago", likes: "5.1K", reposts: "2.3K", score: "10/10",
     bg: "oklch(68% 0.09 190)", fg: "oklch(28% 0.09 190)",
+    category: "Anthropic / Claude",
   },
   {
     initials: "OA", name: "OpenAI", handle: "@OpenAI",
     content: "Introducing GPT-5: our most capable model yet. Native multimodality across text, images, audio, and video. Available today in the API and ChatGPT Pro, with enterprise rollout starting next week.",
     time: "4h ago", likes: "12.4K", reposts: "5.6K", score: "10/10",
     bg: "oklch(55% 0.12 160)", fg: "#fff",
+    category: "OpenAI",
   },
   {
     initials: "AN", name: "Anthropic", handle: "@AnthropicAI",
     content: "Claude 4 Opus is here. Major advances in reasoning depth, code generation, and instruction following. Our internal evals show 40% fewer hallucinations on complex STEM tasks compared to the previous generation.",
     time: "7h ago", likes: "9.8K", reposts: "4.2K", score: "9/10",
     bg: "oklch(55% 0.1 30)", fg: "#fff",
+    category: "Anthropic / Claude",
   },
   {
     initials: "GD", name: "Google DeepMind", handle: "@GoogleDeepMind",
     content: "Gemini 2.5 Pro now supports 2M token context windows natively. Upload entire codebases, research papers, or book series and reason across all of it simultaneously. Rolling out to Gemini Advanced users today.",
     time: "1d ago", likes: "8.7K", reposts: "3.4K", score: "9/10",
     bg: "oklch(50% 0.14 255)", fg: "#fff",
+    category: "Google / Gemini / DeepMind",
   },
   {
     initials: "DS", name: "DeepSeek", handle: "@deepseek_ai",
     content: "DeepSeek-V4 released: fully open-source under MIT license. Matches proprietary frontier models on reasoning benchmarks while running on 60% less compute. Weights, code, and technical report available now on GitHub.",
     time: "1d ago", likes: "15.3K", reposts: "7.8K", score: "10/10",
     bg: "oklch(50% 0.12 240)", fg: "#fff",
+    category: "AI Educators & Researchers",
   },
 ];
 
@@ -539,6 +580,13 @@ export function processedToFeedPost(p: ProcessedPost): FeedPost {
 
   const c = colors[p.handle] || { bg: "oklch(70% 0.06 200)", fg: "oklch(30% 0.06 200)" };
 
+  const categoryMap: Record<string, string> = {};
+  for (const person of PEOPLE) {
+    if (!categoryMap[person.handle]) {
+      categoryMap[person.handle] = person.category;
+    }
+  }
+
   return {
     initials: p.avatar,
     name: p.name,
@@ -550,6 +598,7 @@ export function processedToFeedPost(p: ProcessedPost): FeedPost {
     score: `${p.score}/10`,
     bg: c.bg,
     fg: c.fg,
+    category: categoryMap[p.handle],
   };
 }
 
@@ -577,6 +626,7 @@ export function xPostToFeedPost(post: XPost, personMap: Record<string, Person>):
     fg,
     images: post.images,
     url: post.url,
+    category: person?.category,
   };
 }
 
