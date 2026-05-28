@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { TopNav, Footer, Section, SectionHeader } from "@/components/layout";
+import { Section, SectionHeader } from "@/components/layout";
 import { TabBar } from "@/components/ui";
 import {
   FeedPostItem,
@@ -117,14 +117,6 @@ export default function DiscoveryPage() {
 
   return (
     <>
-      <TopNav
-        links={[
-          { label: "Discovery", href: "/discovery", active: true },
-          { label: "Courses", href: "#", disabled: true },
-          { label: "Account", href: "#", disabled: true },
-        ]}
-      />
-
       <div className="discovery-layout">
         <aside className="discovery-sidebar">
           <TabBar tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} vertical />
@@ -350,8 +342,6 @@ export default function DiscoveryPage() {
           )}
         </main>
       </div>
-
-      <Footer />
     </>
   );
 }

@@ -4,3 +4,4 @@ export { TopNav } from "./TopNav";
 export { Footer } from "./Footer";
 export { LogoMark } from "./LogoMark";
 export { SectionHeader } from "./SectionHeader";
+export { Nav } from "./Nav";

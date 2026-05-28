@@ -360,6 +360,85 @@ export default function DesignSystemPage() {
             </div>
           </Container>
         </Section>
+
+        {/* ─── Auth Card ────────────────────────────────────────────────── */}
+        <section className="section">
+          <div className="container stack">
+            <SectionHeader
+              title="Auth Card"
+              description="Sign in card with form elements"
+            />
+            <div style={{ maxWidth: 440, margin: "0 auto" }}>
+              <div className="auth-card">
+                <p className="eyebrow">Welcome back</p>
+                <h1 style={{ marginBottom: 8 }}>Sign in</h1>
+                <div className="form-group">
+                  <label>Email</label>
+                  <div className="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <input type="email" placeholder="you@example.com" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Password</label>
+                  <div className="input-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" placeholder="Enter your password" />
+                  </div>
+                </div>
+                <div className="form-options">
+                  <label><input type="checkbox" defaultChecked /> Remember me</label>
+                  <a href="#">Forgot?</a>
+                </div>
+                <button className="btn btn-primary" style={{ width: "100%" }}>Sign in</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Stat Cards ──────────────────────────────────────────────── */}
+        <section className="section">
+          <div className="container stack">
+            <SectionHeader
+              title="Stat Cards"
+              description="Account dashboard stat counters"
+            />
+            <div className="stat-grid" style={{ maxWidth: 600 }}>
+              <div className="stat-card"><div className="stat-num">12</div><div className="stat-label">Courses started</div></div>
+              <div className="stat-card"><div className="stat-num">8</div><div className="stat-label">Completed</div></div>
+              <div className="stat-card"><div className="stat-num">24</div><div className="stat-label">Saved</div></div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Activity Item ───────────────────────────────────────────── */}
+        <section className="section">
+          <div className="container stack">
+            <SectionHeader
+              title="Activity Item"
+              description="Learning history row with progress"
+            />
+            <div className="acard" style={{ maxWidth: 600 }}>
+              <div className="activity-item">
+                <div className="activity-icon">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><path d="M7 4v16M17 4v16M3 8h4m10 4h4M3 12h4m10 4h4M3 16h4"/></svg>
+                </div>
+                <div className="activity-body">
+                  <h4>Sample Course Title</h4>
+                  <p>Completed with a score of 92%.</p>
+                  <div className="activity-meta">
+                    <span>Completed 2 days ago</span>
+                    <span className="activity-score">92%</span>
+                    <div className="activity-progress"><div className="bar" style={{ width: "100%" }} /></div>
+                  </div>
+                </div>
+                <div className="activity-right">
+                  <span className="act-tag course">Course</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />

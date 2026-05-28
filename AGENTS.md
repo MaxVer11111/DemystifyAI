@@ -61,6 +61,15 @@ src/
       ValuePropCard.tsx     #   Numbered value proposition card
     index/                # Domain components for the Home/Launcher page
       LauncherCard.tsx     #   Icon + title + description link card
+  courses/
+    CourseCard.tsx        # Category card with hover lift effect
+    TutorialCard.tsx      # Tutorial card with type-aware link behavior
+    CourseReader.tsx      # In-app Feishu doc reader with markdown rendering
+  account/
+    StatCard.tsx          # Stats counter card
+    ActivityItem.tsx      # Learning history row with progress bar
+  auth/
+    SignInForm.tsx        # Sign in form with Supabase + mock auth
 ```
 
 ## Design System Architecture
@@ -143,6 +152,14 @@ Default to server components. Currently only `TabBar` and the `discovery/page.ts
 - Fonts are loaded via `<link>` tags in `layout.tsx`, not via `next/font` — this avoids build-time font processing for Google Fonts
 - The Tailwind CSS v4 postcss plugin is installed but not used — all styling goes through `globals.css`. Do not add Tailwind utility classes to components
 - This project follows Next.js 16 conventions — refer to `node_modules/next/dist/docs/` for any API questions
+
+## Courses Note
+
+Course data lives in `src/data/courses.ts` — add a category by adding to `COURSE_CATEGORIES`, add a tutorial by adding to `COURSE_TUTORIALS`. Tutorials use `type: "feishu"` for in-app reading or `type: "external"` for link-out. Feishu doc content is proxied through `src/app/api/feishu/doc/route.ts` and rendered by `CourseReader`.
+
+## Auth Note
+
+Auth uses Supabase with a mock layer. Toggle `USE_MOCK` in `src/components/auth/SignInForm.tsx` to switch between mock and live auth. The mock client in `src/lib/supabase/mock.ts` simulates successful sign-in with a demo user.
 
 ---
 
